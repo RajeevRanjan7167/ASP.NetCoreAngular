@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using GeneralApp.DataAccess.Data;
+using GeneralApp.DataAccess.Repository.IRepository;
+using GeneralApp.DataAccess.Repository;
 
 namespace GeneralApp
 {
@@ -32,6 +34,7 @@ namespace GeneralApp
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
         }

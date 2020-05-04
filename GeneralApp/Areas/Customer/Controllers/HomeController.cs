@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using GeneralApp.Models;
+using GeneralApp.Models.ViewModels;
 
 namespace GeneralApp.Areas.Customer.Controllers
 {
