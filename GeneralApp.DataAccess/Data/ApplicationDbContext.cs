@@ -16,6 +16,9 @@ namespace GeneralApp.DataAccess.Data
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<CoverType> CoverTypes { get; set; }
-
+        public DbSet<Product> Product { get; set; }
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        
     }
 }

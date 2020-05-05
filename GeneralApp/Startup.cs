@@ -14,6 +14,8 @@ using Microsoft.Extensions.Hosting;
 using GeneralApp.DataAccess.Data;
 using GeneralApp.DataAccess.Repository.IRepository;
 using GeneralApp.DataAccess.Repository;
+using GeneralApp.Utility;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace GeneralApp
 {
@@ -32,8 +34,9 @@ namespace GeneralApp
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddIdentity<IdentityUser,IdentityRole>().AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddSingleton<IEmailSender, EmailSender>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
