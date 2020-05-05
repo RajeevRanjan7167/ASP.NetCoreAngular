@@ -2,81 +2,87 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 using GeneralApp.DataAccess.Repository.IRepository;
 using GeneralApp.Models;
+using GeneralApp.Utility;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GeneralApp.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class CoverTypeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public CategoryController(IUnitOfWork unitOfWork)
+        public CoverTypeController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-
         public IActionResult Index()
         {
             return View();
         }
-
         public IActionResult Upsert(int? id)
         {
-            Category category = new Category();
+            CoverType coverType = new CoverType();
             if (id == null)
             {
                 // This is for create
-                return View(category);
+                return View(coverType);
             }
             // This is for edit 
-            category = _unitOfWork.Category.Get(id.GetValueOrDefault());
-            if (category == null)
+            var parameter = new DynamicParameters();
+            parameter.Add("@Id", id);
+            coverType = _unitOfWork.SP_Call.OneRecord<CoverType>(clsSD.Proc_CoverType_Get, parameter);
+            if (coverType == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(coverType);
         }
 
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll()
         {
-            var allObj = _unitOfWork.Category.GetAll();
+            var allObj = _unitOfWork.SP_Call.List<CoverType>(clsSD.Proc_CoverType_GetAll, null);
             return Json(new { data = allObj });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Upsert(Category category)
+        public IActionResult Upsert(CoverType coverType)
         {
             if (ModelState.IsValid)
             {
-                if (category.Id == 0)
+                var parameter = new DynamicParameters();
+                parameter.Add("@Name", coverType.Name);
+                if (coverType.id == 0)
                 {
-                    _unitOfWork.Category.Add(category);
+                    _unitOfWork.SP_Call.Execute(clsSD.Proc_CoverType_Create, parameter);
                 }
                 else
                 {
-                    _unitOfWork.Category.Update(category);
+                    parameter.Add("@Id", coverType.id);
+                    _unitOfWork.SP_Call.Execute(clsSD.Proc_CoverType_Update, parameter);
                 }
                 _unitOfWork.Save();
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(coverType);
         }
 
         [HttpDelete]
         public IActionResult Delete(int id)
         {
-            var objFromDB = _unitOfWork.Category.Get(id);
+            var parameter = new DynamicParameters();
+            parameter.Add("@Id", id);
+            var objFromDB = _unitOfWork.SP_Call.OneRecord<CoverType>(clsSD.Proc_CoverType_Get, parameter);
             if (objFromDB == null)
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
-            _unitOfWork.Category.Remove(objFromDB);
+            _unitOfWork.SP_Call.Execute(clsSD.Proc_CoverType_Delete, parameter);
             _unitOfWork.Save();
             return Json(new { success = true, message = "Delete Successful" });
         }
